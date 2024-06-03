@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta httpequiv="X-UA-Compat" content="IE=">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSE 564 Lab 2A - SHRH18</title>
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{url_for('static', filename = 'styles.css')}}">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.js"></script> -->
+
+    <!-- <script src="{{url_for('static', filename = 'home.js')}}"></script> -->
+</head>
+<body class="main">
+  
+    <div>        
+        <div>
+            <nav class="navbar navbar-dark bg-dark fixed-top bg-body-dark">
+                <div class="container-fluid">
+                  <a class="navbar-brand" href="#">CSE 564 - VISUALIZATION LAB 2A WORK &emsp; | &emsp; SHREYAS HABADE &emsp; | &emsp; 115911132 &emsp; | &emsp; EUROPEAN FOOTBALL 2021-22 DATA</a>
+                  <a href="https://www.kaggle.com/datasets/vivovinco/20212022-football-player-stats" style="color: antiquewhite;">DATASET LINK</a>
+                  <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
+                    <div class="offcanvas-header">
+                      <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">MENU BAR</h5>
+                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                      <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                        <li class="nav-item">
+                          <a class="nav-link active" aria-current="page" href="#">Home</a>
+                        </li>
+
+                        <div class="input-group mb-3">
+                          <span class="input-group-text text-bg-dark" id="inputGroup-sizing-default">GRAPH TYPE</span>
+                          <select id="graph-type" class="form-select bg-dark text-bg-dark" aria-placeholder="GRAPH TYPE" aria-label="Default select example" onchange="toggleAxisDivs()">
+                            <option selected value="BAR GRAPH">BAR GRAPH</option>
+                            <option value="HISTOGRAM">HISTOGRAM</option>
+                            <option value="SCATTERPLOT">SCATTERPLOT</option>
+                            <option value="SCREEPLOT">SCREEPLOT</option>
+                          </select>
+                        </div>
+
+                        <div id="select-league-div" class="input-group mb-3">
+                          <span class="input-group-text text-bg-dark" id="inputGroup-sizing-default">SELECT LEAGUE</span>
+                          <select id="select-league" class="form-select bg-dark text-bg-dark" aria-placeholder="SELECT LEAGUE" aria-label="Default select example">
+                            <option selected value="ALL LEAGUES">ALL LEAGUES</option>
+                            <option value="Premier League">PREMIER LEAGUE - ENGLAND</option>
+                            <option value="La Liga">LA LIGA - SPAIN</option>
+                            <option value="Bundesliga">BUNDESLIGA - GERMANY</option>
+                            <option value="Serie A">SERIE A - ITALY</option>
+                            <option value="Ligue 1">LIGUE 1 - FRANCE</option>
+                          </select>
+                        </div>
+
+                        <div id="select-variable-div" class="input-group mb-3">
+                          <span class="input-group-text text-bg-dark" id="inputGroup-sizing-default">SELECT VARIABLE</span>
+                          <select id="select-variable" class="form-select bg-dark text-bg-dark" aria-placeholder="SELECT VARIABLE" aria-label="Default select example">
+                            <option value="TOTAL GOALS SCORED">TOTAL GOALS SCORED</option>
+                            <option id="avgAge" value="AVERAGE AGE">AVERAGE AGE</option>
+                            <option value="PASSES COMPLETED">PASSES COMPLETED</option>
+                            <option value="FOULS COMMITTED">FOULS COMMITTED</option>
+                            <option id="playerCount" value="PLAYER COUNT">PLAYER COUNT</option>
+                          </select>
+                        </div>
+                        
+                        <div id="x-axis-div" class="input-group mb-1">
+                          <span class="input-group-text text-bg-dark" id="inputGroup-sizing-default">VARIABLE 1</span>
+                          <select id="x-axis-variable" class="form-select bg-dark text-bg-dark" aria-placeholder="X-AXIS VARIABLE" aria-label="Default select example">
+                            <option selected disabled></option>
+                            <option value="TOTAL GOALS SCORED">GOALS SCORED</option>
+                            <option value="TOTAL AGE OF TEAM">TOTAL AGE OF TEAM</option>
+                            <option value="PASSES COMPLETED">PASSES COMPLETED</option>
+                            <option value="FOULS COMMITTED">FOULS COMMITTED</option>
+                            <option value="PLAYER COUNT">PLAYER COUNT</option>
+                          </select>
+                        </div>
+
+                        <div id="y-axis-div" class="input-group mb-3">
+                          <span class="input-group-text text-bg-dark" id="inputGroup-sizing-default">VARIABLE 2</span>
+                          <select id="y-axis-variable" class="form-select bg-dark text-bg-dark" aria-placeholder="Y-AXIS VARIABLE" aria-label="Default select example">
+                            <option selected disabled></option>
+                            <option value="TOTAL GOALS SCORED">GOALS SCORED</option>
+                            <option value="TOTAL AGE OF TEAM">TOTAL AGE OF TEAM</option> 
+                            <option value="PASSES COMPLETED">PASSES COMPLETED</option>
+                            <option value="FOULS COMMITTED">FOULS COMMITTED</option>
+                            <option value="PLAYER COUNT">PLAYER COUNT</option>
+                          </select>
+                        </div>
+
+                        <div id="num_components-div" class="input-group mb-3">
+                          <span class="input-group-text text-bg-dark" id="inputGroup-sizing-default">NO. OF COMPONENTS</span>
+                          <select id="num_components" class="form-select bg-dark text-bg-dark" aria-placeholder="Y-AXIS VARIABLE" aria-label="Default select example">
+                            <option selected disabled></option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <!-- <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option> -->
+                          </select>
+                        </div>
+
+                      </ul>
+                      <form class="mt-3 col-12" role="search">
+                        <!-- <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"> -->
+                        <div>
+                          <div>
+                            <div id="radio-vertical" class="form-check pt-2">
+                              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+                              <label class="form-check-label ps-2" for="flexRadioDefault2">
+                                Vertical Bars
+                              </label>
+                            </div>
+                            <div id="radio-horizontal" class="form-check pt-2">
+                              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                              <label class="form-check-label ps-2" for="flexRadioDefault1">
+                                Horizontal Bars
+                              </label>
+                            </div>
+                          </div>
+
+                          <div>
+                            <div id="radio-var1" class="form-check pt-2">
+                              <input class="form-check-input" type="radio" name="flexRadioDefault1" id="flexRadioDefaultVar1" checked>
+                              <label class="form-check-label ps-2" for="flexRadioDefault2">
+                                VARIABLE 1 ON X-AXIS
+                              </label>
+                            </div>
+                            <div id="radio-var2" class="form-check pt-2">
+                              <input class="form-check-input" type="radio" name="flexRadioDefault1" id="flexRadioDefaultVar2">
+                              <label class="form-check-label ps-2" for="flexRadioDefault1">
+                                VARIABLE 2 ON X-AXIS
+                              </label>
+                            </div>
+                          </div>
+                          <div class="d-grid pt-4">
+                            <button id="plot-graph-btn" class="btn btn-primary" type="button">Plot Graph</button>
+                            <button id="screeplot-pca-btn" class="btn btn-primary" type="button">Screeplot PCA</button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </nav>
+        </div>
+      
+
+        <div style="height:90%; overflow: auto; width: 100%; overflow: auto;" >
+          <div id="chart-container">
+            <div id="chart">
+              <div id="graph-container" class="bg-light m-3">
+                <br>
+                <h1 style="color: black;">This is a work for visualising data using Screeplots, PCA Biplot, K-Means Clustering and Scatterplot Matrix.</h1>
+                <br>
+                <h2 style="color: black;">Click on the Navbar (the 3 lines on top right) to select different options and view graphs accordingly.</h2>
+                <br>
+              </div>
+
+              <!-- Add this to your HTML file -->
+              <!-- Add this to your HTML file -->
+              <!-- <div id="loader-container">
+                <span class="sr-only">Loading...</span>
+                <div id="loader" class="spinner-border text-primary" role="status" style="display: none;">
+                </div>
+              </div> -->
+
+
+
+            </div>
+          </div>
+        </div>
+
+    </div>
+
+</body>
+<script src="{{url_for('static', filename = 'home.js')}}"></script>
+<script src="{{url_for('static', filename = 'bargraph.js')}}"></script>
+<script src="{{url_for('static', filename = 'histogram.js')}}"></script>
+<script src="{{url_for('static', filename = 'scatterplot.js')}}"></script>
+<script src="{{url_for('static', filename = 'screeplot.js')}}"></script>
+<script src="{{url_for('static', filename = 'biplot.js')}}"></script>
+<script src="{{url_for('static', filename = 'scatterplotMatrix.js')}}"></script>
+
+</html>
